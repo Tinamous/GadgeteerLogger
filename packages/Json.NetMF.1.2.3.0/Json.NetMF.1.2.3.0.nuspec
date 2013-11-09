@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>Json.NetMF</id>
+    <version>1.2.3.0</version>
+    <title>Json.NetMF</title>
+    <authors>Mike Jones,  Matt Weimer</authors>
+    <owners>Mike Jones,  Matt Weimer</owners>
+    <licenseUrl>https://github.com/mweimer/Json.NetMF/blob/master/LICENSE.md</licenseUrl>
+    <projectUrl>https://github.com/mweimer/Json.NetMF</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>JSON Serializer and Deserializer library for the .NET Micro Framework</description>
+    <summary>JSON Serializer and Deserializer library for the .NET Micro Framework</summary>
+    <releaseNotes>bug fix: allow for abstract properties</releaseNotes>
+    <copyright />
+    <tags>netmf json</tags>
+  </metadata>
+</package>
