@@ -17,7 +17,6 @@ namespace Tinamous.GadgeteerLogger.Core.Components
     /// </remarks>
     class StatusMessageMonitor
     {
-        private const string TinamousUserName = "@spider";
         private const int StatusYPosition = 150;
         private const int ReadStatusYPosition = 190;
         private const int StatusCheckInterval = 30000;
@@ -27,11 +26,13 @@ namespace Tinamous.GadgeteerLogger.Core.Components
         private readonly ILoggerDisplay _loggerDisplay;
         private bool _updating;
         private DateTime _lastPost = new DateTime(2013, 10, 12, 00, 00, 00);
+        private string _username;
 
         public StatusMessageMonitor(Relay_X1 relayX1, ILoggerDisplay loggerDisplay)
         {
             _relayX1 = relayX1;
             _loggerDisplay = loggerDisplay;
+            _username = "@" + Globals.UserName.ToLower();
 
             // Check status messages every x seconds
             _statusCheckTimer = new Gadgeteer.Timer(StatusCheckInterval);
@@ -123,7 +124,7 @@ namespace Tinamous.GadgeteerLogger.Core.Components
         {
             // If the username is the start of the message then the post
             // is for us. otherwise ignore
-            if (post.Message.ToLower().IndexOf(TinamousUserName) == 0)
+            if (post.Message.ToLower().IndexOf(_username) == 0)
             {
                 return true;
             }
@@ -137,7 +138,7 @@ namespace Tinamous.GadgeteerLogger.Core.Components
         /// <returns></returns>
         private bool AmIMentioned(StatusPost post)
         {
-            if (post.Message.ToLower().IndexOf(TinamousUserName) >= 0)
+            if (post.Message.ToLower().IndexOf(_username) >= 0)
             {
                 return true;
             }

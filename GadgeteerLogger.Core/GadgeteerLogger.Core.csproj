@@ -46,6 +46,7 @@
     <Compile Include="Components\LoggerDisplay.cs" />
     <Compile Include="Components\TemperatureReader.cs" />
     <Compile Include="Dtos\StatusPost.cs" />
+    <Compile Include="Globals.cs" />
     <Compile Include="Program.generated.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

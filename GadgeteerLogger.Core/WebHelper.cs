@@ -6,37 +6,21 @@ namespace Tinamous.GadgeteerLogger.Core
 {
     public static class WebHelper
     {
-        /// <summary>
-        /// The Tinamous api Url for your account.
-        /// Replace ddd with your account name
-        /// </summary>
-        private const string ApiBaseUrl = "http://ddd.Tinamous.com/api/v1";
-        
-        /// <summary>
-        /// Username for this device in your Tinamous account
-        /// </summary>
-        private const string UserName = "Spider";
-
-        /// <summary>
-        /// Passwordfor the device
-        /// </summary>
-        private const string Password = "Passw0rd1234";
-
         public static HttpRequest CreateGetRequest(string url)
         {
-            return HttpHelper.CreateHttpGetRequest(ApiBaseUrl + url);
+            return HttpHelper.CreateHttpGetRequest(Globals.ApiBaseUrl + url);
         }
 
         public static HttpRequest CreatePostRequest(POSTContent content, string controller)
         {
-            var postRequest = HttpHelper.CreateHttpPostRequest(ApiBaseUrl + controller, content, "application/json");
+            var postRequest = HttpHelper.CreateHttpPostRequest(Globals.ApiBaseUrl + controller, content, "application/json");
             AddAuthorizationHeaders(postRequest);
             return postRequest;
         }
 
         public static void AddAuthorizationHeaders(HttpRequest getRequest)
         {
-            var auth = GetAuthHeaderValue(UserName, Password);
+            var auth = GetAuthHeaderValue(Globals.UserName, Globals.Password);
             getRequest.AddHeaderField("Authorization", auth);
         }
 
