@@ -2,6 +2,9 @@ using Gadgeteer.Networking;
 
 namespace Tinamous.GadgeteerLogger.Core.Web
 {
+    /// <summary>
+    /// Responsible for reading and writing measurments to Tinamous
+    /// </summary>
     static class Measurements
     {
         public static void GetMeasurements(HttpRequest.ResponseHandler responseHandler)

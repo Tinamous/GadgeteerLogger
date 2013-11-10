@@ -4,6 +4,9 @@ using Microsoft.SPOT;
 
 namespace Tinamous.GadgeteerLogger.Core.Web
 {
+    /// <summary>
+    /// Responsible for reading and writing status posts to Tinamous
+    /// </summary>
     static class Status
     {
         public static void PostStatus(string statusMessage)

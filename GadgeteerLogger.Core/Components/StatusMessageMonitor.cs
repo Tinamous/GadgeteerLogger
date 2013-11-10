@@ -8,15 +8,25 @@ using Tinamous.GadgeteerLogger.Core.Web;
 
 namespace Tinamous.GadgeteerLogger.Core.Components
 {
+    /// <summary>
+    /// Reads status messages from Tinamous and displayes them on the screen
+    /// </summary>
+    /// <remarks>
+    /// If the status message is a command to the user (@spider) then it tries
+    /// to process the command and perform an action based on it.
+    /// </remarks>
     class StatusMessageMonitor
     {
-        private const int StatusCheckInterval = 60000;
+        private const string TinamousUserName = "@spider";
+        private const int StatusYPosition = 150;
+        private const int ReadStatusYPosition = 190;
+        private const int StatusCheckInterval = 30000;
+
         private Gadgeteer.Timer _statusCheckTimer;
         private readonly Relay_X1 _relayX1;
         private readonly ILoggerDisplay _loggerDisplay;
         private bool _updating;
         private DateTime _lastPost = new DateTime(2013, 10, 12, 00, 00, 00);
-
 
         public StatusMessageMonitor(Relay_X1 relayX1, ILoggerDisplay loggerDisplay)
         {
@@ -25,11 +35,10 @@ namespace Tinamous.GadgeteerLogger.Core.Components
 
             // Check status messages every x seconds
             _statusCheckTimer = new Gadgeteer.Timer(StatusCheckInterval);
-            _statusCheckTimer.Tick += _statusCheckTimer_Tick;
-
+            _statusCheckTimer.Tick += StatusCheckTimerTick;
         }
 
-        void _statusCheckTimer_Tick(Gadgeteer.Timer timer)
+        void StatusCheckTimerTick(Gadgeteer.Timer timer)
         {
             if (_updating)
             {
@@ -40,7 +49,7 @@ namespace Tinamous.GadgeteerLogger.Core.Components
             {
                 _updating = true;
 
-                _loggerDisplay.ShowMessage("Reading Status Posts", 10, 150);
+                _loggerDisplay.ShowMessage("Reading Status Posts", 10, StatusYPosition);
 
                 // Check for new status messages
                 var request = Status.CreateGetRequest(_lastPost);
@@ -65,7 +74,7 @@ namespace Tinamous.GadgeteerLogger.Core.Components
             Debug.Print(response.StatusCode);
 
             // Blank out the "Updating" message
-            _loggerDisplay.ShowMessage("", 10, 150);
+            _loggerDisplay.ShowMessage("", 10, StatusYPosition);
 
             if (response.StatusCode == "200")
             {
@@ -95,8 +104,9 @@ namespace Tinamous.GadgeteerLogger.Core.Components
             // Show only posts I am mentioned in
             if (AmIMentioned(post))
             {
-                _loggerDisplay.ShowMessage("@" + post.User.UserName + ":", 10, 190);
-                _loggerDisplay.ShowMessage(post.SummaryMessage, 10, 210);
+                _loggerDisplay.ShowMessage("@" + post.User.UserName + ":", 10, ReadStatusYPosition);
+                _loggerDisplay.ShowMessage(post.SummaryMessage, 10, ReadStatusYPosition + 20);
+
                 if (IsPostForMe(post))
                 {
                     CheckCommands(post);
@@ -104,19 +114,30 @@ namespace Tinamous.GadgeteerLogger.Core.Components
             }
         }
 
+        /// <summary>
+        /// Determine if the status post is sent to us.
+        /// </summary>
+        /// <param name="post"></param>
+        /// <returns></returns>
         private bool IsPostForMe(StatusPost post)
         {
-            // Ignore posts not to this device
-            if (post.Message.ToLower().IndexOf("@spider") == 0)
+            // If the username is the start of the message then the post
+            // is for us. otherwise ignore
+            if (post.Message.ToLower().IndexOf(TinamousUserName) == 0)
             {
                 return true;
             }
             return false;
         }
 
+        /// <summary>
+        /// Determine if this device is mentioned in the status post.
+        /// </summary>
+        /// <param name="post"></param>
+        /// <returns></returns>
         private bool AmIMentioned(StatusPost post)
         {
-            if (post.Message.ToLower().IndexOf("@spider") >= 0)
+            if (post.Message.ToLower().IndexOf(TinamousUserName) >= 0)
             {
                 return true;
             }

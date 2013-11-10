@@ -6,30 +6,48 @@ using Tinamous.GadgeteerLogger.Core.Web;
 
 namespace Tinamous.GadgeteerLogger.Core.Components
 {
+    /// <summary>
+    /// Read temperature and humidity and post the measurements to Tinamous
+    /// </summary>
     public class TemperatureReader
     {
-        private bool _updating;
+        private const int TemperatureCheckInterval = 10000;
+        private const int TemperatureYPostion = 70;
+        private const int HumidityYPosition = 90;
+        private const int StatusYPosition = 130;
+
         private readonly TemperatureHumidity _temperatureHumidity;
         private readonly ILoggerDisplay _loggerDisplay;
-        private Gadgeteer.Timer _temperatureCheckTimer;
-        private const int TemperatureCheckInterval = 10000;
+        private readonly Gadgeteer.Timer _temperatureCheckTimer;
+        private bool _updating;
 
         public TemperatureReader(TemperatureHumidity temperatureHumidity, ILoggerDisplay loggerDisplay)
         {
             _temperatureHumidity = temperatureHumidity;
             _loggerDisplay = loggerDisplay;
+
             // Post an update on temp/humidity etc every x seconds
             _temperatureCheckTimer = new Gadgeteer.Timer(TemperatureCheckInterval);
             _temperatureCheckTimer.Tick += TemperatureCheckTimerTick;
 
-            temperatureHumidity.MeasurementComplete += temperatureHumidity_MeasurementComplete;
+            temperatureHumidity.MeasurementComplete += TemperatureHumidityMeasurementComplete;
+        }
 
+        public void Start()
+        {
+            _temperatureCheckTimer.Start();
+        }
+
+        public void Stop()
+        {
+            _temperatureCheckTimer.Stop();
         }
 
         void TemperatureCheckTimerTick(Gadgeteer.Timer timer)
         {
             if (_updating)
             {
+                _loggerDisplay.ShowErrorMessage("Waiting for previous update to finish", 10, StatusYPosition);
                 return;
             }
 
@@ -37,12 +55,13 @@ namespace Tinamous.GadgeteerLogger.Core.Components
             {
                 _updating = true;
 
-                _loggerDisplay.ShowMessage("Read/Post Temperature & Humidity", 10, 130);
+                _loggerDisplay.ShowMessage("Read Temperature & Humidity", 10, StatusYPosition);
                 _temperatureHumidity.RequestMeasurement();
             }
             catch (Exception ex)
             {
                 Debug.Print("Exception updating:" + ex);
+                _loggerDisplay.ShowErrorMessage("Exception requesting measurement", 10, StatusYPosition);
             }
             finally
             {
@@ -51,20 +70,27 @@ namespace Tinamous.GadgeteerLogger.Core.Components
         }
 
 
-        void temperatureHumidity_MeasurementComplete(TemperatureHumidity sender, double temperature, double relativeHumidity)
+        void TemperatureHumidityMeasurementComplete(TemperatureHumidity sender, double temperature, double relativeHumidity)
         {
-            string tempString = "Temperature: " + System.Math.Round(temperature) + " C";
-            _loggerDisplay.ShowMessage(tempString, 10, 70);
+            string tempString = "Temperature: " + Round(temperature) + " °C";
+            _loggerDisplay.ShowMessage(tempString, 10, TemperatureYPostion);
 
-            string humidityString = "Humidity: " + System.Math.Round(relativeHumidity) + " %";
-            _loggerDisplay.ShowMessage(humidityString, 10, 90);
+            string humidityString = "Humidity: " + Round(relativeHumidity) + " %";
+            _loggerDisplay.ShowMessage(humidityString, 10, HumidityYPosition);
 
             PostMeasurements(temperature, relativeHumidity);
+        }
+
+        private double Round(double value)
+        {
+            return System.Math.Round(value * 10D) / 10D;
         }
 
         private void PostMeasurements(double temperature, double relativeHumidity)
         {
             Debug.Print("Sending measurements");
+
+            _loggerDisplay.ShowMessage("Sending Temperature & Humidity", 10, StatusYPosition);
             var request = Measurements.CreatePostRequest(temperature, relativeHumidity);
             request.ResponseReceived += MeasurementPostCompleted;
             request.SendRequest();
@@ -74,25 +100,16 @@ namespace Tinamous.GadgeteerLogger.Core.Components
         {
             if (response.StatusCode == "201")
             {
-                _loggerDisplay.ShowMessage("", 10, 130);
+                _loggerDisplay.ShowMessage("", 10, StatusYPosition);
             }
             else
             {
-                _loggerDisplay.ShowMessage("Error: " + response.StatusCode, 10, 130);
+                _loggerDisplay.ShowErrorMessage("Error: " + response.StatusCode, 10, StatusYPosition);
             }
+
             Debug.Print("Post Measurements: ");
             Debug.Print(response.StatusCode);
             Debug.Print(response.Text);
-        }
-
-        public void Stop()
-        {
-            _temperatureCheckTimer.Stop();
-        }
-
-        public void Start()
-        {
-            _temperatureCheckTimer.Start();
         }
     }
 }

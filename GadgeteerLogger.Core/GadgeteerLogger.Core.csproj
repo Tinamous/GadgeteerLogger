@@ -40,8 +40,9 @@
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
     <Compile Include="Components\ButtonMonitor.cs" />
+    <Compile Include="Components\NetworkConnection.cs" />
     <Compile Include="Components\StatusMessageMonitor.cs" />
-    <Compile Include="Components\ILoggerDisplay.cs" />
+    <Compile Include="Components\Interfaces\ILoggerDisplay.cs" />
     <Compile Include="Components\LoggerDisplay.cs" />
     <Compile Include="Components\TemperatureReader.cs" />
     <Compile Include="Dtos\StatusPost.cs" />

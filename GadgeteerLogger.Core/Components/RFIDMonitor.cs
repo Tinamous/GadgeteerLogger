@@ -3,31 +3,27 @@ using Tinamous.GadgeteerLogger.Core.Web;
 
 namespace Tinamous.GadgeteerLogger.Core.Components
 {
+    /// <summary>
+    /// Monitor the Rfid reader.
+    /// </summary>
     class RfidMonitor
     {
-        private readonly Button _button;
+        private const int CardDetailsYPosition = 110;
         private readonly RFID _rfid;
         private readonly ILoggerDisplay _display;
 
-        public RfidMonitor(Button button, RFID rfid, ILoggerDisplay display)
+        public RfidMonitor(RFID rfid, ILoggerDisplay display)
         {
-            _button = button;
             _rfid = rfid;
             _display = display;
-            Initialize();
+
+            _rfid.CardIDReceived += RfidCardIdReceived;
         }
 
-        private void Initialize()
+        void RfidCardIdReceived(RFID sender, string id)
         {
-            _rfid.CardIDReceived += rfid_CardIDReceived;
-        }
-
-        void rfid_CardIDReceived(RFID sender, string id)
-        {
-            _button.TurnLEDOn();
-            _display.ShowMessage("Card:" + id, 10, 110);
+            _display.ShowMessage("Card:" + id, 10, CardDetailsYPosition);
             Status.PostStatus("RFID:" + id);
-            _button.TurnLEDOff();
         }
     }
 }

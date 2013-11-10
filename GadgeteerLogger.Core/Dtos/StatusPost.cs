@@ -4,6 +4,9 @@ using Json.NETMF;
 
 namespace Tinamous.GadgeteerLogger.Core.Dtos
 {
+    /// <summary>
+    /// Represents a status post read from Tinamous
+    /// </summary>
     class StatusPost
     {
         public StatusPost(Hashtable statusPost)
