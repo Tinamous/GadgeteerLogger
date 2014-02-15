@@ -15,10 +15,14 @@ namespace Tinamous.GadgeteerLogger.Core.Web
             getRequest.SendRequest();
         }
 
-        public static HttpRequest CreatePostRequest(double temperature, double relativeHumidity)
+        public static HttpRequest CreatePostRequest(string temperature, string relativeHumidity, string lightLevel)
         {
-            string postContent = "{ \"field1\" : \"" + temperature + "\", ";
-            postContent += "\"field2\" : \"" + relativeHumidity + "\" }";
+            string postContent = "{ ";
+            postContent += "\"field1\" : \"" + temperature + "\", ";
+            postContent += "\"field2\" : \"" + relativeHumidity + "\", ";
+            postContent += "\"field3\" : \"" + lightLevel + "\", ";
+            postContent += "\"channel\" : \"0\" ";
+            postContent += "}";
             postContent += "\n\r";
             postContent += "\n\r";
 
