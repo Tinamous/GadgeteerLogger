@@ -72,26 +72,21 @@ namespace Tinamous.GadgeteerLogger.Core.Components
 
         void TemperatureHumidityMeasurementComplete(TemperatureHumidity sender, double temperature, double relativeHumidity)
         {
-            string tempString = "Temperature: " + Round(temperature) + " °C";
+            string tempString = "Temperature: " + temperature.ToString("f2") + " °C";
             _loggerDisplay.ShowMessage(tempString, 10, TemperatureYPostion);
 
-            string humidityString = "Humidity: " + Round(relativeHumidity) + " %";
+            string humidityString = "Humidity: " + relativeHumidity.ToString("f2") + " %";
             _loggerDisplay.ShowMessage(humidityString, 10, HumidityYPosition);
 
             PostMeasurements(temperature, relativeHumidity);
         }
-
-        private double Round(double value)
-        {
-            return System.Math.Round(value * 10D) / 10D;
-        }
-
+        
         private void PostMeasurements(double temperature, double relativeHumidity)
         {
             Debug.Print("Sending measurements");
 
             _loggerDisplay.ShowMessage("Sending Temperature & Humidity", 10, StatusYPosition);
-            var request = Measurements.CreatePostRequest(temperature, relativeHumidity);
+            var request = Measurements.CreatePostRequest(temperature.ToString("f2"), relativeHumidity.ToString("f2"),"1");
             request.ResponseReceived += MeasurementPostCompleted;
             request.SendRequest();
         }
@@ -109,7 +104,7 @@ namespace Tinamous.GadgeteerLogger.Core.Components
 
             Debug.Print("Post Measurements: ");
             Debug.Print(response.StatusCode);
-            Debug.Print(response.Text);
+            //Debug.Print(response.Text);
         }
     }
 }
