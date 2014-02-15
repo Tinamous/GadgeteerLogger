@@ -17,10 +17,10 @@ namespace Tinamous.GadgeteerLogger.Core
             Debug.Print("Program Started");
 
             _loggerDisplay = new LoggerDisplay(display_T35);
-            _rfidMonitor = new RfidMonitor(rfid, _loggerDisplay);
+            //_rfidMonitor = new RfidMonitor(rfid, _loggerDisplay);
             _temperatureReader = new TemperatureReader(temperatureHumidity, _loggerDisplay);
-            _statusMessageMonitor = new StatusMessageMonitor(relay_X1, _loggerDisplay);
-            _buttonMonitor = new ButtonMonitor(button);
+            //_statusMessageMonitor = new StatusMessageMonitor(relay_X1, _loggerDisplay);
+            //_buttonMonitor = new ButtonMonitor(button);
             _networkConnection = new NetworkConnection(ethernet_J11D, _loggerDisplay);
             _networkConnection.NetworkUp+=NetworkConnectionUp;
             _networkConnection.NetworkDown+=NetworkConnectionDown;
@@ -29,13 +29,13 @@ namespace Tinamous.GadgeteerLogger.Core
 
         private void NetworkConnectionUp(object sender, EventArgs e)
         {
-            _statusMessageMonitor.Start();
+            //_statusMessageMonitor.Start();
             _temperatureReader.Start();
         }
 
         private void NetworkConnectionDown(object sender, EventArgs e)
         {
-            _statusMessageMonitor.Stop();
+            //_statusMessageMonitor.Stop();
             _temperatureReader.Stop();
         }
     }
