@@ -1,5 +1,6 @@
 ﻿using Gadgeteer.Modules.GHIElectronics;
 using Microsoft.SPOT;
+using Tinamous.GadgeteerLogger.Core.Components.Interfaces;
 
 namespace Tinamous.GadgeteerLogger.Core.Components
 {
@@ -30,6 +31,11 @@ namespace Tinamous.GadgeteerLogger.Core.Components
         {
             _display.SimpleGraphics.DisplayRectangle(Gadgeteer.Color.Black, 1, Gadgeteer.Color.Black, x, y, 300, 15);
             _display.SimpleGraphics.DisplayText(message, _font, _color, x, y);
+        }
+
+        public void ClearMessage(uint x, uint y)
+        {
+            _display.SimpleGraphics.DisplayRectangle(Gadgeteer.Color.Black, 1, Gadgeteer.Color.Black, x, y, 300, 15);
         }
 
         public void ShowErrorMessage(string message, uint x, uint y)

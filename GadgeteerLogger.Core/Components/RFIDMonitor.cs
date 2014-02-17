@@ -1,4 +1,5 @@
 using Gadgeteer.Modules.GHIElectronics;
+using Tinamous.GadgeteerLogger.Core.Components.Interfaces;
 using Tinamous.GadgeteerLogger.Core.Web;
 
 namespace Tinamous.GadgeteerLogger.Core.Components

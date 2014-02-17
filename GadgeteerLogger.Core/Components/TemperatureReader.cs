@@ -1,36 +1,51 @@
 ﻿using System;
+using Gadgeteer.Modules.GHIElectronics;
 using Gadgeteer.Modules.Seeed;
-using Gadgeteer.Networking;
 using Microsoft.SPOT;
-using Tinamous.GadgeteerLogger.Core.Web;
+using Tinamous.GadgeteerLogger.Core.Components.EventArguments;
+using Tinamous.GadgeteerLogger.Core.Components.Interfaces;
 
 namespace Tinamous.GadgeteerLogger.Core.Components
 {
     /// <summary>
-    /// Read temperature and humidity and post the measurements to Tinamous
+    /// Read temperature and humidity and updates the display. Raises event on new temperature measurement
     /// </summary>
     public class TemperatureReader
     {
+        public delegate void LightLevelMeasurementCompleteEvent(object sender, LightLevelMeasurementCompleteEventArgs args);
+        public event TemperatureHumidity.MeasurementCompleteEventHandler MeasurementComplete;
+        public event LightLevelMeasurementCompleteEvent LightLevelMeasurementComplete;
+
+        private const int TemperatureYPostion = 30;
+        private const int HumidityYPosition = 45;
+        private const int LightYPostion = 60;
+        private const int StatusYPosition = 75;
+
+        // Temp module pauses about 3.6 seconds to prevent overheating.
+        // poll less often to allow to run cooler?
         private const int TemperatureCheckInterval = 10000;
-        private const int TemperatureYPostion = 70;
-        private const int HumidityYPosition = 90;
-        private const int StatusYPosition = 130;
 
         private readonly TemperatureHumidity _temperatureHumidity;
+        private readonly LightSensor _lightSensor;
         private readonly ILoggerDisplay _loggerDisplay;
-        private readonly Gadgeteer.Timer _temperatureCheckTimer;
+        private readonly Gadgeteer.Timer _temperatureCheckTimer = new Gadgeteer.Timer(TemperatureCheckInterval);
         private bool _updating;
 
-        public TemperatureReader(TemperatureHumidity temperatureHumidity, ILoggerDisplay loggerDisplay)
+        public TemperatureReader(TemperatureHumidity temperatureHumidity, LightSensor lightSensor, ILoggerDisplay loggerDisplay)
         {
+            if (temperatureHumidity == null) throw new ArgumentNullException("temperatureHumidity");
+            if (lightSensor == null) throw new ArgumentNullException("lightSensor");
+            if (loggerDisplay == null) throw new ArgumentNullException("loggerDisplay");
+
             _temperatureHumidity = temperatureHumidity;
+            _lightSensor = lightSensor;
+            _temperatureHumidity.MeasurementComplete += TemperatureHumidityMeasurementComplete;
+
             _loggerDisplay = loggerDisplay;
 
-            // Post an update on temp/humidity etc every x seconds
-            _temperatureCheckTimer = new Gadgeteer.Timer(TemperatureCheckInterval);
+            // Take measurement on timer tick
+            // and hence update UI and Monitor.
             _temperatureCheckTimer.Tick += TemperatureCheckTimerTick;
-
-            temperatureHumidity.MeasurementComplete += TemperatureHumidityMeasurementComplete;
         }
 
         public void Start()
@@ -41,6 +56,7 @@ namespace Tinamous.GadgeteerLogger.Core.Components
         public void Stop()
         {
             _temperatureCheckTimer.Stop();
+            _temperatureHumidity.StopContinuousMeasurements();
         }
 
         void TemperatureCheckTimerTick(Gadgeteer.Timer timer)
@@ -55,8 +71,11 @@ namespace Tinamous.GadgeteerLogger.Core.Components
             {
                 _updating = true;
 
-                _loggerDisplay.ShowMessage("Read Temperature & Humidity", 10, StatusYPosition);
                 _temperatureHumidity.RequestMeasurement();
+                GetLightLevel();
+
+                // Clear any previous message
+                _loggerDisplay.ClearMessage(10, StatusYPosition);
             }
             catch (Exception ex)
             {
@@ -69,6 +88,21 @@ namespace Tinamous.GadgeteerLogger.Core.Components
             }
         }
 
+        private void GetLightLevel()
+        {
+            double lightLevelPercentage = _lightSensor.ReadLightSensorPercentage();
+            double lightLevelVoltage= _lightSensor.ReadLightSensorVoltage();
+            
+            string lightString = "Light: " + lightLevelPercentage.ToString("f2") + " %";
+            _loggerDisplay.ShowMessage(lightString, 10, LightYPostion);
+
+            if (LightLevelMeasurementComplete != null)
+            {
+                var args = new LightLevelMeasurementCompleteEventArgs(lightLevelPercentage, lightLevelVoltage);
+                LightLevelMeasurementComplete(this, args);
+
+            }
+        }
 
         void TemperatureHumidityMeasurementComplete(TemperatureHumidity sender, double temperature, double relativeHumidity)
         {
@@ -78,33 +112,11 @@ namespace Tinamous.GadgeteerLogger.Core.Components
             string humidityString = "Humidity: " + relativeHumidity.ToString("f2") + " %";
             _loggerDisplay.ShowMessage(humidityString, 10, HumidityYPosition);
 
-            PostMeasurements(temperature, relativeHumidity);
-        }
-        
-        private void PostMeasurements(double temperature, double relativeHumidity)
-        {
-            Debug.Print("Sending measurements");
-
-            _loggerDisplay.ShowMessage("Sending Temperature & Humidity", 10, StatusYPosition);
-            var request = Measurements.CreatePostRequest(temperature.ToString("f2"), relativeHumidity.ToString("f2"),"1");
-            request.ResponseReceived += MeasurementPostCompleted;
-            request.SendRequest();
-        }
-
-        private void MeasurementPostCompleted(HttpRequest sender, HttpResponse response)
-        {
-            if (response.StatusCode == "201")
+            // Bubble the same event on up.
+            if (MeasurementComplete != null)
             {
-                _loggerDisplay.ShowMessage("", 10, StatusYPosition);
+                MeasurementComplete(sender, temperature, relativeHumidity);
             }
-            else
-            {
-                _loggerDisplay.ShowErrorMessage("Error: " + response.StatusCode, 10, StatusYPosition);
-            }
-
-            Debug.Print("Post Measurements: ");
-            Debug.Print(response.StatusCode);
-            //Debug.Print(response.Text);
         }
     }
 }

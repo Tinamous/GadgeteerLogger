@@ -3,6 +3,7 @@ using System.Collections;
 using Gadgeteer.Modules.GHIElectronics;
 using Gadgeteer.Networking;
 using Microsoft.SPOT;
+using Tinamous.GadgeteerLogger.Core.Components.Interfaces;
 using Tinamous.GadgeteerLogger.Core.Dtos;
 using Tinamous.GadgeteerLogger.Core.Web;
 

@@ -65,15 +65,16 @@ namespace Tinamous.GadgeteerLogger.Core.Components
 
         void InterfaceNetworkAddressChanged(object sender, EventArgs e)
         {
-            Debug.Print("Network IP Address changed");
+            Debug.Print("Network IP Address changed: " + _ethernetJ11D.Interface.NetworkInterface.IPAddress);
             string message = "Network Up. IP: " + _ethernetJ11D.Interface.NetworkInterface.IPAddress;
             _loggerDisplay.ShowMessage(message, 10, NetworkStatusYPosition);
         }
 
         void EthernetJ11DNetworkUp(Module.NetworkModule sender, Module.NetworkModule.NetworkState state)
         {
-            Debug.Print("Network up");
-            _loggerDisplay.ShowMessage("Network Up.", 10, NetworkStatusYPosition);
+            string message = "Network up. IP: " + _ethernetJ11D.Interface.NetworkInterface.IPAddress;
+            Debug.Print(message);
+            _loggerDisplay.ShowMessage(message, 10, NetworkStatusYPosition);
             OnNetworkUp(EventArgs.Empty);
             
         }
@@ -81,7 +82,7 @@ namespace Tinamous.GadgeteerLogger.Core.Components
         void EthernetJ11DNetworkDown(Module.NetworkModule sender, Module.NetworkModule.NetworkState state)
         {
             Debug.Print("Network down");
-            _loggerDisplay.ShowMessage("Network Down", 10, NetworkStatusYPosition);
+            _loggerDisplay.ShowMessage("Network Down :-(", 10, NetworkStatusYPosition);
             OnNetworkDown(EventArgs.Empty);
         }
     }

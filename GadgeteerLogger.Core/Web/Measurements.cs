@@ -15,12 +15,13 @@ namespace Tinamous.GadgeteerLogger.Core.Web
             getRequest.SendRequest();
         }
 
-        public static HttpRequest CreatePostRequest(string temperature, string relativeHumidity, string lightLevel)
+        public static HttpRequest CreatePostRequest(string temperature, string relativeHumidity, string lightLevel, string pressure)
         {
             string postContent = "{ ";
             postContent += "\"field1\" : \"" + temperature + "\", ";
             postContent += "\"field2\" : \"" + relativeHumidity + "\", ";
             postContent += "\"field3\" : \"" + lightLevel + "\", ";
+            postContent += "\"field4\" : \"" + pressure + "\", ";
             postContent += "\"channel\" : \"0\" ";
             postContent += "}";
             postContent += "\n\r";
@@ -30,7 +31,5 @@ namespace Tinamous.GadgeteerLogger.Core.Web
             HttpRequest request = WebHelper.CreatePostRequest(content, "/Measurements");
             return request;
         }
-
-
     }
 }

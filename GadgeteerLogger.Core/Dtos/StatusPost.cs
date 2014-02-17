@@ -13,14 +13,15 @@ namespace Tinamous.GadgeteerLogger.Core.Dtos
         {
             Message = statusPost["Message"].ToString();
             SummaryMessage = statusPost["SummaryMessage"].ToString();
-            Id = Convert.ToInt64(statusPost["Id"].ToString());
+            Id = statusPost["Id"].ToString();
             PostedOn = DateTimeExtensions.FromIso8601(statusPost["PostedOn"] as string);
             User = new User(statusPost["User"] as Hashtable);
         }
 
         public string Message { get; set; }
         public string SummaryMessage { get; set; }
-        public long Id { get; set; }
+        // Guid.
+        public string Id { get; set; }
         public DateTime PostedOn { get; set; }
         public User User { get; set; }
 
@@ -31,7 +32,7 @@ namespace Tinamous.GadgeteerLogger.Core.Dtos
         public User(Hashtable hashtable)
         {
             //Account = Convert.ToInt64(hashtable["Account"].ToString());
-            Id = Convert.ToInt64(hashtable["Id"].ToString());
+            Id = hashtable["Id"].ToString();
             //Name = hashtable["Name"].ToString();
             UserName = hashtable["UserName"].ToString();
             FullUserName = hashtable["FullUserName"].ToString();
@@ -40,7 +41,8 @@ namespace Tinamous.GadgeteerLogger.Core.Dtos
         }
 
         public long Account { get; set; }
-        public long Id { get; set; }
+        // Guid
+        public string Id { get; set; }
         public string Name { get; set; }
         public string UserName { get; set; }
         public string FullUserName { get; set; }
