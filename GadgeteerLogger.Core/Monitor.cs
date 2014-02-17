@@ -46,7 +46,7 @@ namespace Tinamous.GadgeteerLogger.Core
         {
             Temperature = temperature.ToString("f2");
             Debug.Print("Temperature reader set temp as: " + Temperature);
-            Humidity = temperature.ToString("f2");
+            Humidity = relativeHumidity.ToString("f0");
             _hasTemperature = true;
         }
 
